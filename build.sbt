@@ -4,10 +4,11 @@ name := "logcluster"
 
 scalaVersion := "2.10.2"
 
-version := "0.3-SNAPSHOT"
+version := "0.4-SNAPSHOT"
 
-//publishTo := Some("snapshots" at "http://nexus.despegar.it:8080/nexus/content/repositories/snapshots/")
-publishTo := Some("snapshots" at "http://nexus:8080/nexus/content/repositories/snapshots-miami")
+publishTo := Some("snapshots" at "http://nexus.despegar.it:8080/nexus/content/repositories/snapshots/")
+//publishTo := Some("releases" at "http://nexus.despegar.it:8080/nexus/content/repositories/releases/")
+//publishTo := Some("snapshots" at "http://nexus:8080/nexus/content/repositories/snapshots-miami")
 
 libraryDependencies ++= 
   "com.typesafe" %% "scalalogging-slf4j" % "1.0.1" ::
