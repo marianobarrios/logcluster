@@ -8,9 +8,9 @@ import logcluster.util.BlockingQueueTraversable
 import logcluster.util.newThread
 import logcluster.util.logIfRelevant
 import java.util.concurrent.atomic.AtomicInteger
-import com.typesafe.scalalogging.slf4j.Logging
 import java.util.concurrent.BlockingQueue
 import scala.collection.mutable
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 /**
  * A parallel processor that does the filtering (many log entries, I/O bound) in a different thread than
@@ -23,7 +23,7 @@ class ParallelProcessor(
     val minSimil: Double, 
     val reporter: Reporter,
     initialClusterList: Map[String, Cluster] = Map[String, Cluster]()
-  ) extends Logging {
+  ) extends StrictLogging {
 
   val (actualComp, potentialComp) = (new AtomicInteger, new AtomicInteger)
 

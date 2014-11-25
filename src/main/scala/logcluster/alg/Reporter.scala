@@ -4,11 +4,11 @@ import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
 import logcluster.util.createDirOrCheckEmpty
-import com.typesafe.scalalogging.slf4j.Logging
 import java.io.IOException
 import scala.collection.mutable
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
-class Reporter(val title: String, val dir: File, append: Boolean = false) extends Logging {
+class Reporter(val title: String, val dir: File, append: Boolean = false) extends StrictLogging {
 
   if (append)
     Reporter.createDirIfNecessary(dir)

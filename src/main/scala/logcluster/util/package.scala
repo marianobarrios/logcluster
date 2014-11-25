@@ -8,9 +8,9 @@ import org.slf4j.Logger
 import java.lang.management.ManagementFactory
 import scala.collection.JavaConversions._
 import java.io.IOException
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
-package object util extends Logging {
+package object util extends StrictLogging {
 
   def measureExecTime[A](printer: Long => Unit)(toMeasure: => A) = {
     val start = System.currentTimeMillis

@@ -5,9 +5,9 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.Cache
 import java.util.concurrent.Callable
 import java.lang.management.ManagementFactory
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
-class CachingDistance(val impl: (IndexedSeq[Any], IndexedSeq[Any], Double) => Double) extends Logging {
+class CachingDistance(val impl: (IndexedSeq[Any], IndexedSeq[Any], Double) => Double) extends StrictLogging {
 
   val cacheSize = {
     val usagePerc = 0.35

@@ -1,6 +1,6 @@
 package logcluster.alg
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 class Cluster(val id: String, val example: String, val fundadoid: IndexedSeq[String], val minSimilarity: Double) {
   
@@ -14,7 +14,7 @@ class Cluster(val id: String, val example: String, val fundadoid: IndexedSeq[Str
 
 }
 
-object Cluster extends Logging {
+object Cluster extends StrictLogging {
   
   val cachedLevenshteinDistance = new CachingDistance(Levenshtein.apply)
   
