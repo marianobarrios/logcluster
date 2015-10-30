@@ -6,7 +6,7 @@ import java.io.FileOutputStream
 import logcluster.util.createDirOrCheckEmpty
 import java.io.IOException
 import scala.collection.mutable
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 class Reporter(val title: String, val dir: File, append: Boolean = false) extends StrictLogging {
 
@@ -14,13 +14,13 @@ class Reporter(val title: String, val dir: File, append: Boolean = false) extend
     Reporter.createDirIfNecessary(dir)
   else
     createDirOrCheckEmpty(dir)
-  
-  logger.info("Saving clusters in directory " + dir)
+
+  logger.info(s"Saving clusters in directory $dir")
 
   val clusters = mutable.HashMap[String, PrintStream]()
 
   var totalEntryCount = 0L
-  
+
   def newCluster(clusterId: String) {
     // Do nothing, file is created in the first addition
   }
@@ -41,16 +41,16 @@ class Reporter(val title: String, val dir: File, append: Boolean = false) extend
     for (stream <- clusters.values)
       stream.close()
   }
-  
+
 }
 
 object Reporter {
-    
+
   def createDirIfNecessary(dir: File) {
     dir.mkdirs()
     val list = dir.list
     if (list == null)
       throw new IOException("Cannot create or access directory %s" format dir);
   }
-  
+
 }

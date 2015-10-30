@@ -10,7 +10,7 @@ import logcluster.util.logIfRelevant
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.BlockingQueue
 import scala.collection.mutable
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 /**
  * A parallel processor that does the filtering (many log entries, I/O bound) in a different thread than
@@ -18,9 +18,9 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
  * each other for every line
  */
 class ParallelProcessor(
-    val logFile: String, 
-    val preproc: Preprocessor, 
-    val minSimil: Double, 
+    val logFile: String,
+    val preproc: Preprocessor,
+    val minSimil: Double,
     val reporter: Reporter,
     initialClusterList: Map[String, Cluster] = Map[String, Cluster]()
   ) extends StrictLogging {
@@ -28,11 +28,11 @@ class ParallelProcessor(
   val (actualComp, potentialComp) = (new AtomicInteger, new AtomicInteger)
 
   val clusterList = mutable.Map(initialClusterList.toSeq: _*)
-  
-  // These work as a protection against very long log entries. 
+
+  // These work as a protection against very long log entries.
   val maxLogSize = 2500
   def trimLog(line: String) = line.substring(0, math.min(maxLogSize, line.size))
-  
+
   def doIt(lines: Iterator[String]) {
     logger.info("Starting clustering using preprocessor %s and minimum similarity %.2f" format
       (preproc.getClass.getSimpleName, minSimil))
@@ -53,7 +53,7 @@ class ParallelProcessor(
     producer.start()
     doClustering(new BlockingQueueTraversable(buffer, finished))
   }
-  
+
   def doClusteringAsync(errors: Traversable[LogEntry]) {
     val consumer = newThread(s"reader-$logFile") {
       doClustering(errors)
@@ -61,7 +61,7 @@ class ParallelProcessor(
     consumer.setDaemon(true)
     consumer.start()
   }
-  
+
   def doClustering(errors: Traversable[LogEntry]) {
     try {
     val time = getExecTime {
