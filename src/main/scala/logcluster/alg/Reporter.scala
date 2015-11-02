@@ -7,6 +7,7 @@ import logcluster.util.createDirOrCheckEmpty
 import java.io.IOException
 import scala.collection.mutable
 import com.typesafe.scalalogging.StrictLogging
+import java.util.regex.Pattern
 
 trait Reporter {
   def addToCluster(clusterId: String, entry: LogEntry)
@@ -23,6 +24,9 @@ class FileReporter(val title: String, val dir: File, append: Boolean = false) ex
   logger.info(s"Saving clusters in directory $dir")
 
   private val writers = mutable.HashMap[String, PrintStream]()
+  private val escaper = Pattern.compile("\n")
+
+  private def escape(line: String) = escaper.matcher(line).replaceAll("""\\n""")
 
   override def addToCluster(clusterId: String, entry: LogEntry) {
     val writer = writers.get(clusterId) match {
@@ -32,8 +36,7 @@ class FileReporter(val title: String, val dir: File, append: Boolean = false) ex
         writers += clusterId -> newWriter
         newWriter
     }
-    logger.debug(s"Writing line ${entry.original.mkString(",")}")
-    writer.println(entry.original)
+    writer.println(escape(entry.original))
     writer.flush()
   }
 
