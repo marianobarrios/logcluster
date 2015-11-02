@@ -22,30 +22,28 @@ class FileReporter(val title: String, val dir: File, append: Boolean = false) ex
 
   logger.info(s"Saving clusters in directory $dir")
 
-  val clusters = mutable.HashMap[String, PrintStream]()
+  private val writers = mutable.HashMap[String, PrintStream]()
 
   override def addToCluster(clusterId: String, entry: LogEntry) {
-    val stream = clusters.get(clusterId) match {
+    val writer = writers.get(clusterId) match {
       case Some(existing) => existing
       case None =>
-        val newStream = new PrintStream(new FileOutputStream(new File(dir, clusterId), append))
-        clusters += clusterId -> newStream
-        newStream
+        val newWriter = new PrintStream(new FileOutputStream(new File(dir, clusterId)), append)
+        writers += clusterId -> newWriter
+        newWriter
     }
-    stream.println(entry.original)
-    stream.flush()
+    logger.debug(s"Writing line ${entry.original.mkString(",")}")
+    writer.println(entry.original)
+    writer.flush()
   }
 
-  override def finish() {
-    for (stream <- clusters.values)
-      stream.close()
-  }
+  override def finish() { writers.values.foreach(_.close) }
 
 }
 
 object FileReporter {
 
-  def createDirIfNecessary(dir: File) {
+  private def createDirIfNecessary(dir: File) {
     dir.mkdirs()
     val list = dir.list
     if (list == null)
