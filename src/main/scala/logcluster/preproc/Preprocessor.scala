@@ -2,5 +2,5 @@ package logcluster.preproc
 import logcluster.alg.LogEntry
 
 trait Preprocessor {
-  def apply(line: String): Option[LogEntry]
+  def apply(app: String, line: String): Option[LogEntry]
 }

@@ -8,10 +8,15 @@ import java.io.IOException
 import scala.collection.mutable
 import com.typesafe.scalalogging.StrictLogging
 
-class Reporter(val title: String, val dir: File, append: Boolean = false) extends StrictLogging {
+trait Reporter {
+  def addToCluster(clusterId: String, entry: LogEntry)
+  def finish() {}
+}
+
+class FileReporter(val title: String, val dir: File, append: Boolean = false) extends Reporter with StrictLogging {
 
   if (append)
-    Reporter.createDirIfNecessary(dir)
+    FileReporter.createDirIfNecessary(dir)
   else
     createDirOrCheckEmpty(dir)
 
@@ -19,13 +24,7 @@ class Reporter(val title: String, val dir: File, append: Boolean = false) extend
 
   val clusters = mutable.HashMap[String, PrintStream]()
 
-  var totalEntryCount = 0L
-
-  def newCluster(clusterId: String) {
-    // Do nothing, file is created in the first addition
-  }
-
-  def addToCluster(clusterId: String, entry: String) {
+  override def addToCluster(clusterId: String, entry: LogEntry) {
     val stream = clusters.get(clusterId) match {
       case Some(existing) => existing
       case None =>
@@ -33,24 +32,24 @@ class Reporter(val title: String, val dir: File, append: Boolean = false) extend
         clusters += clusterId -> newStream
         newStream
     }
-    stream.println(entry)
+    stream.println(entry.original)
     stream.flush()
   }
 
-  def close() = {
+  override def finish() {
     for (stream <- clusters.values)
       stream.close()
   }
 
 }
 
-object Reporter {
+object FileReporter {
 
   def createDirIfNecessary(dir: File) {
     dir.mkdirs()
     val list = dir.list
     if (list == null)
-      throw new IOException("Cannot create or access directory %s" format dir);
+      throw new IOException(s"Cannot create or access directory $dir");
   }
 
 }

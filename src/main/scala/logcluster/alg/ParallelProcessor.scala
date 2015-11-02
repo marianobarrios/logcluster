@@ -21,7 +21,7 @@ class ParallelProcessor(
     val logFile: String,
     val preproc: Preprocessor,
     val minSimil: Double,
-    val reporter: Reporter,
+    val reporters: Seq[Reporter],
     initialClusterList: Map[String, Cluster] = Map[String, Cluster]()
   ) extends StrictLogging {
 
@@ -41,12 +41,11 @@ class ParallelProcessor(
     val producer = newThread(s"reader-$logFile") {
       try {
         var i = 0L
-        for (line <- lines.map(l => preproc(trimLog(l)))) {
+        for (line <- lines.map(l => preproc(logFile, trimLog(l)))) {
           logIfRelevant(i + 1)(c => logger.debug(s"Processed $c lines"))
           line.foreach(buffer.put(_))
         }
         logger.info(s"Preprocessing finished. Total entry count: $i")
-        reporter.totalEntryCount = i
       } finally finished.set(true)
     }
     producer.setDaemon(true) // So the producer won't be blocked forever if the consumer threw an exception
@@ -77,7 +76,7 @@ class ParallelProcessor(
     }
     logger.info("Total time: %d seconds" format (time / 1000))
     } finally {
-      reporter.close()
+      onReporters(_.finish())
     }
   }
 
@@ -88,16 +87,15 @@ class ParallelProcessor(
       case None => {
         val cluster = Cluster(entry, clusterList.size, minSimil)
         clusterList += cluster.id -> cluster
-        reporter.newCluster(cluster.id)
         addToCluster(cluster, entry)
-        logIfRelevant(clusterList.size)(c => logger.debug("Found %d clusters" format c))
+        logIfRelevant(clusterList.size)(c => logger.debug(s"Found $c clusters"))
       }
     }
   }
 
   def addToCluster(cluster: Cluster, entry: LogEntry) {
     cluster.addEntry(entry)
-    reporter.addToCluster(cluster.id, entry.original)
+    onReporters(_.addToCluster(cluster.id, entry))
   }
 
   /*
@@ -133,4 +131,5 @@ class ParallelProcessor(
     }
   }
 
+  private def onReporters[A](f: Reporter => A) = reporters.foreach(r => f(r))
 }
